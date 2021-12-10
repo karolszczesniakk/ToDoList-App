@@ -3,6 +3,8 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const date = require(__dirname+"/date.js");
 var _ = require('lodash');
+const { redirect } = require("express/lib/response");
+const e = require("express");
 
 
 const app = express();
@@ -14,7 +16,7 @@ app.set('view engine', 'ejs')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.static("public"));
 
-mongoose.connect('mongodb://localhost:27017/todolistDB');
+mongoose.connect('mongodb://localhost:27017/todolistDBv2');
 //mongoose.connect("mongodb+srv://admin-karol:PASSWORD@cluster0.99nkp.mongodb.net/todolistDB")
 
 const itemsSchema = {
@@ -27,7 +29,7 @@ const itemsSchema = {
 const Item = mongoose.model("Item", itemsSchema);
 
 const item1 = new Item({
-    name: "Take out trash"
+    name: "Do chores"
 })
 
 const item2 = new Item({
@@ -35,7 +37,7 @@ const item2 = new Item({
 })
 
 const item3 = new Item({
-    name: "Make some pushups"
+    name: "Exercise"
 })
 
 const defaultItems = [item1,item2,item3];
@@ -47,9 +49,52 @@ const listSchema = {
 
 const List = mongoose.model("List", listSchema);
 
+let notFinishedDays = 0;
+
+List.find({},function(err,foundLists){
+    if(!err){
+        foundLists.forEach(foundList => {
+            console.log(foundList.items.length);
+            if(foundList.items.length>0){
+                notFinishedDays++;
+            }  
+        });  
+        if(notFinishedDays>0){
+            notFinishedDays--;
+        }
+    } else {
+        console.log(err);
+    }
+})
 
 
-app.get("/",(req,res)=>{
+
+
+
+app.get("/",function(req,res){
+
+    console.log();
+
+    List.findOne({name: date()},function(err,foundList){
+        if(!err){
+            if(!foundList){
+                const list = new List({
+                    name: date(),
+                    items: defaultItems
+                })
+                list.save();
+                res.redirect("/");
+            } else {
+                res.render("list",{listTitle: foundList.name, ListItems: foundList.items, numberOfTasks: notFinishedDays});
+            }
+        } else {
+            console.log(err);
+        }
+    })
+})
+
+
+/*app.get("/",(req,res)=>{
 
     Item.find({}, function(err,foundItems){
 
@@ -71,6 +116,7 @@ app.get("/",(req,res)=>{
         }
     })  
 })
+*/
 
 app.post("/",(req,res)=>{
 
@@ -82,21 +128,16 @@ app.post("/",(req,res)=>{
         name: itemName
     })
 
-    if(listName === "Today"){
-        item.save();
-        res.redirect("/");
-    } else {
+    List.findOne({name: listName},(err,foundList)=>{
+        if(err){
+            console.log(err);
+        } else {
+            foundList.items.push(item);
+            foundList.save();
+            res.redirect("/");
+        }
+    })
 
-        List.findOne({name: listName},(err,foundList)=>{
-            if(err){
-                console.log(err);
-            } else {
-                foundList.items.push(item);
-                foundList.save();
-                res.redirect("/"+foundList.name);
-            }
-        })
-    } 
 })
 
 app.post("/delete",(req,res)=>{
@@ -105,27 +146,17 @@ app.post("/delete",(req,res)=>{
     console.log(Id);
     const listName = req.body.list;
 
-    if(listName === "Today"){
-        Item.findByIdAndDelete(Id, function(err){
-            if(err){
-                console.log(err);
-            } else {
-                console.log("Successfully deleted an item with ID of " + Id);
-                res.redirect("/");
-            }
-        })
-    } else {
-        List.findOneAndUpdate({name: listName},{$pull: {items: {_id: Id}}},function(err,foundList){
-            if(err){
-                console.log(err);
-            } else {
-                res.redirect("/"+listName);
-            }
-        })   
-    }   
+    List.findOneAndUpdate({name: listName},{$pull: {items: {_id: Id}}},function(err){
+        if(err){
+            console.log(err);
+        } else {
+            res.redirect("/");
+        }
+    })   
+ 
 })
 
-app.get('/:customListName', (req , res)=>{
+/*app.get('/:customListName', (req , res)=>{
 
     const customListName = _.capitalize(req.params.customListName);
 
@@ -146,8 +177,9 @@ app.get('/:customListName', (req , res)=>{
         }
     }
 )});
+*/
 
-app.post("/:customListName", (req,res)=>{
+/*app.post("/:customListName", (req,res)=>{
     const customListName = req.params.customListName;
     List.findOne({name: customListName},function(err,foundList){
         if(err){
@@ -164,10 +196,7 @@ app.post("/:customListName", (req,res)=>{
         }
     })
 })
-
-app.get("/about",(req,res)=>{
-    res.render("about");
-})  
+*/
 
 let port = process.env.PORT;
 if (port == null || port == "") {
