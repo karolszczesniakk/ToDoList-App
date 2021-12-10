@@ -100,8 +100,6 @@ app.post("/",(req,res)=>{
     } 
 })
 
-
-
 app.post("/delete",(req,res)=>{
     
     const Id = req.body.checkBox;
@@ -124,13 +122,8 @@ app.post("/delete",(req,res)=>{
             } else {
                 res.redirect("/"+listName);
             }
-        })
-        
-        
-    }
-    
-    
-
+        })   
+    }   
 })
 
 app.get('/:customListName', (req , res)=>{
@@ -152,15 +145,8 @@ app.get('/:customListName', (req , res)=>{
                 res.render("list",{listTitle: foundList.name, ListItems: foundList.items});
             }
         }
-    })
-
-    
-
-    
-
-
+    }
 });
-
 
 app.post("/:customListName", (req,res)=>{
     const customListName = req.params.customListName;
@@ -180,11 +166,9 @@ app.post("/:customListName", (req,res)=>{
     })
 })
 
-
 app.get("/about",(req,res)=>{
     res.render("about");
-})
-    
+})  
 
 let port = process.env.PORT;
 if (port == null || port == "") {
