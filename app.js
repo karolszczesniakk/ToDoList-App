@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const date = require(__dirname+"/date.js");
 var _ = require('lodash');
 
 
@@ -22,8 +23,6 @@ const itemsSchema = {
         required:[true,"cant be empty"]
     }
 };
-
-
 
 const Item = mongoose.model("Item", itemsSchema);
 
@@ -146,7 +145,7 @@ app.get('/:customListName', (req , res)=>{
             }
         }
     }
-});
+)});
 
 app.post("/:customListName", (req,res)=>{
     const customListName = req.params.customListName;
