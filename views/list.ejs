@@ -1,13 +1,8 @@
 <%- include("header") %> 
-
     <div class="box" id="heading">
         <h1><%= listTitle %> </h1>
     </div>
-
-
-    <div class="box">
-        
-
+    <div class="box">    
         <% ListItems.forEach(item => { %>
         <form action="/delete" method="post">
             <div class="item">
@@ -19,20 +14,11 @@
             </div>
         </form>
         <% }) %>
-        
-
-
-
-
-
-        <% for(var i = 0; i < ListItems.length; i++) {%>
-        
+        <% for(var i = 0; i < ListItems.length; i++) {%>  
         <% } %>
-
         <form class="item" action="/" method="post">
             <input type="text" name="newItem" placeholder="New Item" autocomplete="off">
             <button type="submit" name ="list" value="<%= listTitle %>">+</button>
         </form>
     </div>  
-    
     <%- include("footer") %> 

@@ -3,7 +3,6 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 var _ = require('lodash');
 
-
 const app = express();
 
 const workItems = [];
@@ -22,8 +21,6 @@ const itemsSchema = {
         required:[true,"cant be empty"]
     }
 };
-
-
 
 const Item = mongoose.model("Item", itemsSchema);
 
@@ -47,8 +44,6 @@ const listSchema = {
 }
 
 const List = mongoose.model("List", listSchema);
-
-
 
 app.get("/",(req,res)=>{
 
@@ -154,13 +149,7 @@ app.get('/:customListName', (req , res)=>{
         }
     })
 
-    
-
-    
-
-
 });
-
 
 app.post("/:customListName", (req,res)=>{
     const customListName = req.params.customListName;
@@ -180,11 +169,9 @@ app.post("/:customListName", (req,res)=>{
     })
 })
 
-
 app.get("/about",(req,res)=>{
     res.render("about");
-})
-    
+})  
 
 let port = process.env.PORT;
 if (port == null || port == "") {
